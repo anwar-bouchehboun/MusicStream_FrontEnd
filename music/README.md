@@ -1,59 +1,65 @@
-# Music
+# 🎵 MusicStream
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.6.
+![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Angular](https://img.shields.io/badge/Angular-17-red.svg)
 
-## Development server
+## 📝 Description
 
-To start a local development server, run:
+MusicStream est une application web de streaming musical développée avec Angular 17, permettant aux utilisateurs de gérer et écouter leur bibliothèque musicale locale. L'application utilise NgRx pour une gestion d'état robuste et offre une expérience utilisateur fluide.
+
+## ✨ Fonctionnalités principales
+
+- 🎵 Lecteur audio complet avec contrôles essentiels
+- 📚 Gestion CRUD complète des tracks
+- 🗄️ Stockage local via IndexedDB
+- 🎨 Interface utilisateur moderne et responsive
+- 🔍 Recherche et filtrage des tracks
+- 📱 Support multi-format (MP3, WAV, OGG)
+
+## 🛠️ Technologies utilisées
+
+- Angular 17
+- NgRx
+- TypeScript
+- RxJS
+- Bootstrap/Tailwind
+- IndexedDB
+
+## 🚀 Installation
 
 ```bash
+git https://github.com/anwar-bouchehboun/MusicStream_FrontEnd.git
+cd music
+npm install
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## 📋 Prérequis
 
-## Code scaffolding
+- Node.js (version 16+)
+- npm (version 8+)
+- Angular CLI (version 17)
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## 🔒 Limitations
 
-```bash
-ng generate component component-name
-```
+- Taille maximale des fichiers : 15MB
+- Formats supportés : MP3, WAV, OGG
+- Limite de caractères :
+  - Titre : 50 caractères
+  - Description : 200 caractères
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## 📝 Documentation
 
-```bash
-ng generate --help
-```
+Pour plus d'informations sur l'utilisation de l'application, consultez notre [Wiki](lien-vers-wiki).
 
-## Building
+## 🤝 Contribution
 
-To build the project run:
+Les contributions sont les bienvenues ! Consultez notre guide de contribution pour plus de détails.
 
-```bash
-ng build
-```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## 🙏 Remerciements
 
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- Angular Team
+- NgRx Team
+- Tous les contributeurs
