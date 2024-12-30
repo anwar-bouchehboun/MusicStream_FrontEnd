@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "music": {
+    "musicStreams": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/music",
+            "outputPath": "dist/music-streams",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -25,17 +25,10 @@
               "src/assets"
             ],
             "styles": [
+              "@angular/material/prebuilt-themes/indigo-pink.css",
               "src/styles.css"
             ],
-            "scripts": [],
-            "server": "src/main.server.ts",
-            "prerender": true,
-            "ssr": {
-              "entry": "server.ts"
-            },
-            "stylePreprocessorOptions": {
-              "includePaths": ["node_modules"]
-            }
+            "scripts": []
           },
           "configurations": {
             "production": {
@@ -65,10 +58,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "music:build:production"
+              "buildTarget": "musicStreams:build:production"
             },
             "development": {
-              "buildTarget": "music:build:development"
+              "buildTarget": "musicStreams:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -76,7 +69,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "music:build"
+            "buildTarget": "musicStreams:build"
           }
         },
         "test": {
@@ -92,6 +85,7 @@
               "src/assets"
             ],
             "styles": [
+              "@angular/material/prebuilt-themes/indigo-pink.css",
               "src/styles.css"
             ],
             "scripts": []
@@ -101,6 +95,6 @@
     }
   },
   "cli": {
-    "analytics": "ffeccb9c-eb86-4923-8cbe-2034143d4379"
+    "analytics": "a3f2b3aa-2413-41fa-8c2e-8fd3fe9cba6b"
   }
 }
