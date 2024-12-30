@@ -9,7 +9,6 @@ import { HttpClient } from '@angular/common/http';
 export class TrackService {
   private dbName = 'musicDB';
   private storeName = 'tracks';
-  private apiUrl = 'http://localhost:3000';
 
   constructor(private http: HttpClient) {
     this.initDB();
@@ -26,7 +25,7 @@ export class TrackService {
     };
   }
 
-  addTrack(track: Track): Observable<Track> {
+  addTrack(track: Track, audioFile?: File): Observable<Track> {
     return from(
       new Promise<Track>((resolve, reject) => {
         const request = indexedDB.open(this.dbName);
@@ -36,7 +35,7 @@ export class TrackService {
           const transaction = db.transaction([this.storeName], 'readwrite');
           const store = transaction.objectStore(this.storeName);
 
-          const addRequest = store.add(track);
+          const addRequest = store.add({ ...track, audioFile });
           addRequest.onsuccess = () => resolve(track);
           addRequest.onerror = () => reject("Erreur lors de l'ajout du track");
         };

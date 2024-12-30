@@ -10,9 +10,14 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { TrackService } from '../../services/track.service';
 import { FormatDurationPipe } from '../../shared/pipes/format-duration.pipe';
 import { HttpClientModule } from '@angular/common/http';
+import Swal from 'sweetalert2';
+import { selectAllTracks } from '../../store/selectors/track.selectors';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { delay } from 'rxjs/operators';
 
 @Component({
   selector: 'app-library',
@@ -26,8 +31,10 @@ import { HttpClientModule } from '@angular/common/http';
     MatIconModule,
     MatInputModule,
     MatFormFieldModule,
+    MatSelectModule,
     FormatDurationPipe,
     HttpClientModule,
+    MatProgressSpinnerModule,
   ],
   providers: [TrackService],
   templateUrl: './library.component.html',
@@ -46,8 +53,11 @@ import { HttpClientModule } from '@angular/common/http';
   ],
 })
 export class LibraryComponent implements OnInit {
-  tracks$ = this.trackService.getAllTracks();
+  tracks$ = this.store.select(selectAllTracks);
+  // tracks$ = this.trackService.getAllTracks();
   searchQuery = '';
+  selectedCategory = 'all'; // Valeur par défaut
+  isLoading = false;
 
   constructor(
     private store: Store<any>,
@@ -59,13 +69,46 @@ export class LibraryComponent implements OnInit {
     this.loadTracks();
   }
   loadTracks() {
-    this.trackService.getAllTracks().subscribe((tracks) => {
-      this.store.dispatch(TrackActions.loadTracksSuccess({ tracks }));
+    this.isLoading = true;
+    this.trackService
+      .getAllTracks()
+      .pipe(delay(1000))
+      .subscribe({
+        next: (tracks) => {
+          this.store.dispatch(TrackActions.loadTracksSuccess({ tracks }));
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Erreur de chargement des pistes:', error);
+          this.isLoading = false;
+        },
+      });
+  }
+
+  get filteredTracks() {
+    let tracks: Track[] = [];
+    this.tracks$.subscribe((t) => (tracks = t));
+
+    return tracks.filter((track) => {
+      const searchLower = this.searchQuery.toLowerCase();
+      const matchesSearch =
+        track.title.toLowerCase().includes(searchLower) ||
+        track.artist.toLowerCase().includes(searchLower);
+
+      const matchesCategory =
+        this.selectedCategory === 'all' ||
+        track.category === this.selectedCategory;
+
+      return matchesSearch && matchesCategory;
     });
   }
 
-  onSearch() {
-    // Implémenter la logique de recherche
+  onSearchChange(query: string) {
+    this.searchQuery = query;
+  }
+
+  onCategoryChange(category: string) {
+    this.selectedCategory = category;
   }
 
   playTrack(track: Track) {
@@ -77,17 +120,37 @@ export class LibraryComponent implements OnInit {
   }
 
   deleteTrack(track: Track): void {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette piste ?')) {
-      this.trackService.deleteTrack(track.id).subscribe({
-        next: () => {
-          this.tracks$ = this.trackService.getAllTracks();
-          this.store.dispatch(TrackActions.deleteTrack({ id: track.id }));
-        },
-        error: (error) => {
-          console.error('Erreur lors de la suppression:', error);
-          alert('Une erreur est survenue lors de la suppression de la piste');
-        },
-      });
-    }
+    Swal.fire({
+      title: 'Êtes-vous sûr ?',
+      text: 'Vous ne pourrez pas revenir en arrière !',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Oui, supprimer !',
+      cancelButtonText: 'Annuler',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.trackService.deleteTrack(track.id).subscribe({
+          next: () => {
+            this.tracks$ = this.trackService.getAllTracks();
+            this.store.dispatch(TrackActions.deleteTrack({ id: track.id }));
+            Swal.fire(
+              'Supprimé !',
+              'La piste a été supprimée avec succès.',
+              'success'
+            );
+          },
+          error: (error) => {
+            console.error('Erreur lors de la suppression:', error);
+            Swal.fire(
+              'Erreur !',
+              'Une erreur est survenue lors de la suppression de la piste',
+              'error'
+            );
+          },
+        });
+      }
+    });
   }
 }

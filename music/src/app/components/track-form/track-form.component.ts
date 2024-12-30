@@ -16,9 +16,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, ActivatedRoute } from '@angular/router';
 import { addTrack } from '../../store/track.actions';
-import { StorageService } from '../../services/storage.service';
 import { TrackService } from '../../services/track.service';
 import { HttpClientModule } from '@angular/common/http';
+import { selectTrackById } from '../../store/selectors/track.selectors';
 
 @Component({
   selector: 'app-track-form',
@@ -131,7 +131,7 @@ export class TrackFormComponent implements OnInit {
     private store: Store,
     private router: Router,
     private route: ActivatedRoute,
-    private storageService: StorageService,
+    private storageService: TrackService,
     private trackService: TrackService
   ) {
     this.initForm();
@@ -157,7 +157,7 @@ export class TrackFormComponent implements OnInit {
   }
 
   private loadTrack(id: string) {
-    this.trackService.getTrackById(id).subscribe((track) => {
+    this.store.select(selectTrackById(id)).subscribe((track) => {
       if (track) {
         this.trackForm.patchValue({
           title: track.title,
@@ -214,10 +214,12 @@ export class TrackFormComponent implements OnInit {
           fileUrl: this.audioFile ? URL.createObjectURL(this.audioFile) : '',
         };
 
-        this.storageService.saveTrack(newTrack, this.audioFile!).then(() => {
-          this.store.dispatch(addTrack({ track: newTrack }));
-          this.router.navigate(['/library']);
-        });
+        this.storageService
+          .addTrack(newTrack, this.audioFile!)
+          .subscribe(() => {
+            this.store.dispatch(addTrack({ track: newTrack }));
+            this.router.navigate(['/library']);
+          });
       }
     }
   }
