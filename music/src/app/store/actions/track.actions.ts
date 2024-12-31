@@ -29,9 +29,17 @@ export const addTrackFailure = createAction(
 export const updateTrack = createAction(
   '[Track] Update Track',
   props<{ track: Track }>()
+  );
+export const updateTrackSuccess = createAction(
+  '[Track] Update Track Success',
+  props<{ track: Track }>()
 );
 export const deleteTrack = createAction(
   '[Track] Delete Track',
+  props<{ id: string }>()
+);
+export const deleteTrackSuccess = createAction(
+  '[Track] Delete Track Success',
   props<{ id: string }>()
 );
 
@@ -70,4 +78,6 @@ export const TrackActions = {
   addTrackFailure,
   updateTrack,
   deleteTrack,
+  deleteTrackSuccess,
+  updateTrackSuccess,
 };

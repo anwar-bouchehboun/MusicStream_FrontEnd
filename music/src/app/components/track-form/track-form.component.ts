@@ -156,7 +156,7 @@ export class TrackFormComponent implements OnInit {
       title: [
         '',
         [Validators.required, Validators.maxLength(50)],
-        [uniqueTitleValidator(this.trackService)],
+     //   [uniqueTitleValidator(this.trackService)],
       ],
       artist: ['', [Validators.required]],
       description: ['', [Validators.required, Validators.maxLength(200)]],
@@ -213,6 +213,7 @@ export class TrackFormComponent implements OnInit {
         };
 
         this.trackService.updateTrack(updatedTrack).subscribe(() => {
+          this.store.dispatch(TrackActions.updateTrackSuccess({ track: updatedTrack }));
           this.router.navigate(['/library']);
         });
       } else {

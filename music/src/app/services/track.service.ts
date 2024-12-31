@@ -10,7 +10,7 @@ export class TrackService {
   private dbName = 'musicDB';
   private storeName = 'tracks';
 
-  constructor(private http: HttpClient) {
+  constructor() {
     this.initDB();
   }
 

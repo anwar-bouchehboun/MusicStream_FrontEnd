@@ -131,28 +131,8 @@ export class LibraryComponent implements OnInit {
       cancelButtonText: 'Annuler',
     }).then((result) => {
       if (result.isConfirmed) {
-        this.trackService.deleteTrack(track.id).subscribe({
-          next: () => {
-            this.tracks$ = this.trackService.getAllTracks();
-            this.store.dispatch(TrackActions.deleteTrack({ id: track.id }));
-            Swal.fire(
-              'Supprimé !',
-              'La piste a été supprimée avec succès.',
-              'success'
-            );
-          },
-          error: (error) => {
-            console.error('Erreur lors de la suppression:', error);
-            Swal.fire(
-              'Erreur !',
-              'Une erreur est survenue lors de la suppression de la piste',
-              'error'
-            );
-          },
-        });
+        this.store.dispatch(TrackActions.deleteTrack({ id: track.id }));
       }
     });
   }
-
-
 }

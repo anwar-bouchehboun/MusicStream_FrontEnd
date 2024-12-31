@@ -29,4 +29,12 @@ export const trackReducer = createReducer(
     ...state,
     tracks: [...state.tracks, track],
   })),
+  on(TrackActions.updateTrackSuccess, (state, { track }) => ({
+    ...state,
+    tracks: state.tracks.map((t) => (t.id === track.id ? track : t)),
+  })),
+  on(TrackActions.deleteTrackSuccess, (state, { id }) => ({
+    ...state,
+    tracks: state.tracks.filter((track) => track.id !== id),
+  }))
 );
