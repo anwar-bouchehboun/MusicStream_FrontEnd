@@ -28,5 +28,5 @@ export const trackReducer = createReducer(
   on(TrackActions.addTrackSuccess, (state, { track }) => ({
     ...state,
     tracks: [...state.tracks, track],
-  }))
+  })),
 );

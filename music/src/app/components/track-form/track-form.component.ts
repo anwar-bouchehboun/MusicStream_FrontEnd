@@ -15,10 +15,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, ActivatedRoute } from '@angular/router';
-import { addTrack } from '../../store/track.actions';
 import { TrackService } from '../../services/track.service';
 import { HttpClientModule } from '@angular/common/http';
 import { selectTrackById } from '../../store/selectors/track.selectors';
+import { uniqueTitleValidator } from '../../shared/validators/unique-title.validator';
 
 @Component({
   selector: 'app-track-form',
@@ -38,6 +38,9 @@ import { selectTrackById } from '../../store/selectors/track.selectors';
     <div
       class="container p-4 mx-auto w-full bg-gray-300 rounded-lg shadow-md md:w-1/2"
     >
+      <h1 class="text-9xl font-bold text-center uppercase">
+        {{ isEditMode ? 'Modifier' : 'Ajouter' }} une chanson
+      </h1>
       <form [formGroup]="trackForm" (ngSubmit)="onSubmit()" class="space-y-4">
         <mat-form-field appearance="fill" class="w-full">
           <mat-label>Titre</mat-label>
@@ -76,6 +79,7 @@ import { selectTrackById } from '../../store/selectors/track.selectors';
             (click)="fileInput.click()"
           >
             <mat-icon>cloud_upload</mat-icon>
+            <span class="ml-2">Charger</span>
           </button>
           <input
             #fileInput
@@ -149,7 +153,11 @@ export class TrackFormComponent implements OnInit {
 
   private initForm() {
     this.trackForm = this.fb.group({
-      title: ['', [Validators.required, Validators.maxLength(50)]],
+      title: [
+        '',
+        [Validators.required, Validators.maxLength(50)],
+        [uniqueTitleValidator(this.trackService)],
+      ],
       artist: ['', [Validators.required]],
       description: ['', [Validators.required, Validators.maxLength(200)]],
       category: ['', [Validators.required]],
@@ -198,6 +206,7 @@ export class TrackFormComponent implements OnInit {
         const updatedTrack: Track = {
           id: this.currentTrackId,
           ...trackData,
+          addedDate: new Date(),
           fileUrl: this.audioFile
             ? URL.createObjectURL(this.audioFile)
             : undefined,
@@ -217,7 +226,7 @@ export class TrackFormComponent implements OnInit {
         this.storageService
           .addTrack(newTrack, this.audioFile!)
           .subscribe(() => {
-            this.store.dispatch(addTrack({ track: newTrack }));
+            this.store.dispatch(TrackActions.addTrack({ track: newTrack }));
             this.router.navigate(['/library']);
           });
       }
