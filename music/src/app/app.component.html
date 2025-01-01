@@ -1,17 +1,43 @@
 <nav class="p-4 bg-gray-800">
   <div class="container flex justify-between items-center mx-auto">
     <div class="text-xl font-bold text-white">MusicStreams</div>
+
+    <!-- Menu hamburger pour mobile -->
+    <button mat-icon-button class="md:hidden" (click)="toggleMenu()">
+      <mat-icon class="text-white">{{
+        isMenuOpen ? "close" : "menu"
+      }}</mat-icon>
+    </button>
+
+    <!-- Menu desktop -->
     <div class="hidden space-x-4 md:flex">
       <a
         routerLink="/library"
         routerLinkActive="text-blue-400"
         class="font-bold text-white uppercase hover:text-gray-300"
-        >Bibliothèque</a
       >
+        Bibliothèque
+      </a>
+    </div>
+
+    <!-- Menu mobile -->
+    <div
+      *ngIf="isMenuOpen"
+      class="absolute right-0 left-0 top-16 mb-4 bg-gray-800 md:hidden"
+    >
+      <div class="flex flex-col p-4">
+        <a
+          routerLink="/library"
+          routerLinkActive="text-blue-400"
+          class="py-2 font-bold text-white uppercase hover:text-gray-300"
+        >
+          Bibliothèque
+        </a>
+      </div>
     </div>
   </div>
 </nav>
 
-<main class="p-4 mx-auto w-full">
+<main class="p-4 m-12 mx-auto wfull">
   <router-outlet />
 </main>

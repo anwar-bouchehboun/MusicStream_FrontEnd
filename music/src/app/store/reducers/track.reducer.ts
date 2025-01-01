@@ -6,12 +6,14 @@ export interface TrackState {
   tracks: Track[];
   loading: boolean;
   error: any;
+  currentTrack: Track | null;
 }
 
 const initialState: TrackState = {
   tracks: [],
   loading: false,
   error: null,
+  currentTrack: null,
 };
 
 export const trackReducer = createReducer(
@@ -36,5 +38,6 @@ export const trackReducer = createReducer(
   on(TrackActions.deleteTrackSuccess, (state, { id }) => ({
     ...state,
     tracks: state.tracks.filter((track) => track.id !== id),
-  }))
+  })),
+ 
 );

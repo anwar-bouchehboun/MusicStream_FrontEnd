@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, from } from 'rxjs';
+import { Observable, from, map } from 'rxjs';
 import { Track } from '../models/track.interface';
 import { HttpClient } from '@angular/common/http';
 
@@ -103,9 +103,9 @@ export class TrackService {
     );
   }
 
-  getTrackById(id: string): Observable<Track | undefined> {
+  getTrackById(id: string): Observable<Track> {
     return from(
-      new Promise<Track | undefined>((resolve) => {
+      new Promise<Track>((resolve) => {
         const request = indexedDB.open(this.dbName);
 
         request.onsuccess = (event: any) => {
@@ -116,6 +116,31 @@ export class TrackService {
 
           getRequest.onsuccess = () => resolve(getRequest.result);
         };
+      })
+    );
+  }
+
+  getNextTrack(currentTrackId: string): Observable<Track | null> {
+    return this.getAllTracks().pipe(
+      map((tracks) => {
+        if (!tracks || tracks.length === 0) return null;
+
+        const currentIndex = tracks.findIndex((t) => t.id === currentTrackId);
+        if (currentIndex === -1 || currentIndex >= tracks.length - 1) {
+          return null;
+        }
+       
+
+        return tracks[currentIndex + 1];
+      })
+    );
+  }
+
+  getPreviousTrack(currentTrackId: string): Observable<Track | null> {
+    return this.getAllTracks().pipe(
+      map((tracks) => {
+        const currentIndex = tracks.findIndex((t) => t.id === currentTrackId);
+        return currentIndex > 0 ? tracks[currentIndex - 1] : null;
       })
     );
   }

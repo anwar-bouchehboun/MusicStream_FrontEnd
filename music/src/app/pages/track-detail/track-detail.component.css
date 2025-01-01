@@ -1,0 +1,56 @@
+.player-progress {
+  padding: 1rem;
+
+  .progress-container {
+    position: relative;
+    width: 100%;
+  }
+
+  .progress-bar {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: height 0.2s ease;
+
+    &:hover {
+      height: 6px;
+
+      .progress-fill {
+        background: var(--primary-color);
+      }
+    }
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 2px;
+    transition: width 0.1s linear;
+
+    &.animate-progress {
+      transition: width 0.5s linear;
+    }
+  }
+
+  .time-display {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.7);
+
+    .current-time, .duration {
+      min-width: 45px;
+    }
+
+    .current-time {
+      text-align: left;
+    }
+
+    .duration {
+      text-align: right;
+    }
+  }
+}

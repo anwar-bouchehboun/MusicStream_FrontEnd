@@ -1,1 +1,85 @@
-<p>track-detail works!</p>
+@if (track$ | async; as track) {
+<div class="p-6">
+  <div class="flex flex-col gap-6 md:flex-row">
+    <!-- Cover et infos -->
+    <div class="w-full md:w-1/3">
+      <img
+        src="assets/images/music.png"
+        alt="Cover"
+        class="w-full rounded-lg shadow-lg"
+      />
+      <div class="mt-4">
+        <h1 class="text-2xl font-bold">{{ track.title }}</h1>
+        <p class="text-gray-600">{{ track.artist }}</p>
+        <p class="mt-2">{{ track.description }}</p>
+      </div>
+    </div>
+
+    <!-- Lecteur -->
+    <div class="w-full md:w-2/3">
+      <div class="p-6 bg-gray-100 rounded-lg">
+        <!-- Contrôles principaux -->
+        <div class="flex justify-center items-center space-x-4">
+          <button (click)="onPrevious(track)" class="p-2 cursor-pointer">
+            <mat-icon>skip_previous</mat-icon>
+          </button>
+
+          @if (isPlaying$ | async) {
+          <button (click)="onPause()" class="p-2">
+            <mat-icon>pause_circle</mat-icon>
+          </button>
+          } @else {
+          <button (click)="onPlay(track)" class="p-2">
+            <mat-icon>play_circle</mat-icon>
+          </button>
+          }
+
+          <button (click)="onNext(track)" class="p-2 cursor-pointer">
+            <mat-icon>skip_next</mat-icon>
+          </button>
+        </div>
+
+        <!-- Progression -->
+        <div class="mt-4 cursor-pointer">
+          <mat-progress-bar
+            [value]="
+              (((currentTime$ | async) ?? 0) / ((duration$ | async) ?? 1)) * 100
+            "
+            (click)="onSeek($event)"
+          >
+          </mat-progress-bar>
+          <div class="flex justify-between mt-1 text-sm">
+            <span>{{ (currentTime$ | async) ?? 0 | formatDuration }}</span>
+            <span>{{ (duration$ | async) ?? 0 | formatDuration }}</span>
+          </div>
+        </div>
+
+        <!-- Volume -->
+        <div class="flex items-center mt-4">
+          <mat-icon>volume_up</mat-icon>
+          <mat-slider class="ml-2 w-full" [max]="1" [step]="0.1">
+            <input
+              matSliderThumb
+              [value]="volume$ | async"
+              (valueChange)="onVolumeChange($event)"
+            />
+          </mat-slider>
+        </div>
+      </div>
+
+      <!-- État du lecteur -->
+      @if (playerStatus$ | async; as status) {
+      <div
+        class="mt-4"
+        [ngClass]="{
+          'text-blue-500': status === 'loading' || status === 'buffering',
+          'text-red-500': status === 'error'
+        }"
+      >
+        {{ getStatusMessage(status) }}
+      </div>
+      }
+    </div>
+  </div>
+</div>
+}

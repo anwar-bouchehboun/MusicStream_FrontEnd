@@ -7,6 +7,8 @@ export interface Track {
   category: MusicCategory;
   addedDate: Date;
   fileUrl: string;
+  coverUrl: string;
+  audioFile?: File;
 }
 
 export enum MusicCategory {
@@ -16,4 +18,3 @@ export enum MusicCategory {
   CHAABI = 'cha3bi',
   OTHER = 'other',
 }
-

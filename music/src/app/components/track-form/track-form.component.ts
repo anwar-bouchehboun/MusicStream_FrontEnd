@@ -83,6 +83,7 @@ import { uniqueTitleValidator } from '../../shared/validators/unique-title.valid
           </button>
           <input
             #fileInput
+            formControlName="audioFile"
             type="file"
             (change)="onFileSelected($event)"
             accept=".mp3,.wav,.ogg"
@@ -161,6 +162,7 @@ export class TrackFormComponent implements OnInit {
       artist: ['', [Validators.required]],
       description: ['', [Validators.required, Validators.maxLength(200)]],
       category: ['', [Validators.required]],
+      audioFile: [null, [Validators.required]],
     });
   }
 
@@ -207,9 +209,10 @@ export class TrackFormComponent implements OnInit {
           id: this.currentTrackId,
           ...trackData,
           addedDate: new Date(),
+          audioFile: this.audioFile,
           fileUrl: this.audioFile
             ? URL.createObjectURL(this.audioFile)
-            : undefined,
+            : '',
         };
 
         this.trackService.updateTrack(updatedTrack).subscribe(() => {
@@ -221,6 +224,7 @@ export class TrackFormComponent implements OnInit {
           id: Date.now().toString(),
           ...trackData,
           addedDate: new Date(),
+          audioFile: this.audioFile,
           fileUrl: this.audioFile ? URL.createObjectURL(this.audioFile) : '',
         };
 

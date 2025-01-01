@@ -29,7 +29,7 @@ export const addTrackFailure = createAction(
 export const updateTrack = createAction(
   '[Track] Update Track',
   props<{ track: Track }>()
-  );
+);
 export const updateTrackSuccess = createAction(
   '[Track] Update Track Success',
   props<{ track: Track }>()
@@ -57,7 +57,28 @@ export const setCurrentTime = createAction(
 );
 export const setStatus = createAction(
   '[Player] Set Status',
-  props<{ status: PlaybackStatus }>()
+  props<{ status: PlaybackStatus; error?: string }>()
+);
+export const setDuration = createAction(
+  '[Player] Set Duration',
+  props<{ duration: number }>()
+);
+export const setCurrentTrack = createAction(
+  '[Player] Set Current Track',
+  props<{ track: Track }>()
+);
+export const previous = createAction(
+  '[Player] Previous',
+  props<{ track: Track }>()
+);
+export const next = createAction('[Player] Next', props<{ track: Track }>());
+export const seek = createAction(
+  '[Player] Seek',
+  props<{ position: number }>()
+);
+export const setCurrentIndex = createAction(
+  '[Player] Set Current Index',
+  props<{ index: number }>()
 );
 
 export const PlayerActions = {
@@ -67,6 +88,12 @@ export const PlayerActions = {
   setVolume,
   setCurrentTime,
   setStatus,
+  setDuration,
+  setCurrentTrack,
+  previous,
+  next,
+  seek,
+  setCurrentIndex,
 };
 
 export const TrackActions = {
