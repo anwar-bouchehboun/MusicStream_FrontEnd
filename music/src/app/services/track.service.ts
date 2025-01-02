@@ -7,6 +7,7 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root',
 })
 export class TrackService {
+  // TODO: the tracks from the server indexedDb
   private dbName = 'musicDB';
   private storeName = 'tracks';
 
@@ -14,6 +15,7 @@ export class TrackService {
     this.initDB();
   }
 
+  // TODO: the tracks from the server indexedDb
   private async initDB(): Promise<void> {
     const request = indexedDB.open(this.dbName, 1);
 
@@ -24,7 +26,7 @@ export class TrackService {
       }
     };
   }
-
+  // TODO: add the track to the server indexedDb
   addTrack(track: Track, audioFile?: File): Observable<Track> {
     return from(
       new Promise<Track>((resolve, reject) => {
@@ -43,6 +45,7 @@ export class TrackService {
     );
   }
 
+  // TODO: get all the tracks from the server indexedDb
   getAllTracks(): Observable<Track[]> {
     return from(
       new Promise<Track[]>((resolve, reject) => {
@@ -103,6 +106,7 @@ export class TrackService {
     );
   }
 
+  // TODO: get the track by id from the server indexedDb
   getTrackById(id: string): Observable<Track> {
     return from(
       new Promise<Track>((resolve) => {
@@ -129,6 +133,7 @@ export class TrackService {
     );
   }
 
+  // TODO: get the next track from the server indexedDb
   getNextTrack(currentTrackId: string): Observable<Track | null> {
     return this.getAllTracks().pipe(
       map((tracks) => {
