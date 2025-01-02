@@ -135,4 +135,7 @@ export class LibraryComponent implements OnInit {
       }
     });
   }
+  ngOnDestroy() {
+    this.store.dispatch(PlayerActions.setCurrentTrack({ track: null }));
+  }
 }
