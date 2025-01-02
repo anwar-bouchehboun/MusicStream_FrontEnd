@@ -116,30 +116,30 @@ export class TrackDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // Initialize volume
+    // TODO: add the onVolumeChange to the server indexedDb
     this.onVolumeChange(0.7);
 
-    // Set up volume control subscription
+    // TODO: add the volume$ to the server indexedDb
     this.volume$
       .pipe(takeUntil(this.destroy$))
       .subscribe((vol) => this.volumeControl.setValue(vol ?? 0));
   }
 
   ngOnDestroy() {
-    // Nettoyage des souscriptions
+    // TODO: add the destroy$ to the server indexedDb
     this.destroy$.next();
     this.destroy$.complete();
 
-    // Nettoyage des ressources audio
+    // TODO: add the cleanup to the server indexedDb
     this.audioService.cleanup();
 
-    // Nettoyage de l'état du lecteur
+    // TODO: add the setCurrentTrack to the server indexedDb
     this.store.dispatch(PlayerActions.setCurrentTrack({ track: null }));
     this.store.dispatch(
       PlayerActions.setStatus({ status: PlaybackStatus.STOPPED })
     );
 
-    // Suppression des données en cache si nécessaire
+    // TODO: add the removeTrack from the server indexedDb
     const trackId = this.route.snapshot.paramMap.get('id');
     if (trackId) {
       localStorage.removeItem(`track_${trackId}`);
@@ -150,7 +150,7 @@ export class TrackDetailComponent implements OnInit, OnDestroy {
   private initializeTrack() {
     const trackId = this.route.snapshot.paramMap.get('id');
     if (trackId) {
-      // Add takeUntil to all subscriptions
+      // TODO: add the takeUntil to all subscriptions to the server indexedDb
       this.trackService
         .getTrackById(trackId)
         .pipe(
@@ -158,14 +158,14 @@ export class TrackDetailComponent implements OnInit, OnDestroy {
           takeUntil(this.destroy$),
           tap(async (track) => {
             if (track) {
-              // Store track in localStorage
+              // TODO: add the setTrack to the server indexedDb
               localStorage.setItem(`track_${trackId}`, JSON.stringify(track));
 
-              // Update store
+              // TODO: add the addTrack to the server indexedDb
               this.store.dispatch(TrackActions.addTrack({ track }));
               this.store.dispatch(PlayerActions.setCurrentTrack({ track }));
 
-              // Try to restore player state
+              // TODO: add the tryRestorePlayerState to the server indexedDb
               const playerState = localStorage.getItem(
                 this.audioService.PLAYER_STATE_KEY
               );
@@ -186,7 +186,7 @@ export class TrackDetailComponent implements OnInit, OnDestroy {
         )
         .subscribe();
 
-      // Set up track$ observable
+      // TODO: add the track$ observable to the server indexedDb
       this.track$ = this.store.select(selectTrackById(trackId)).pipe(
         takeUntil(this.destroy$),
         map((track) => {
@@ -208,6 +208,7 @@ export class TrackDetailComponent implements OnInit, OnDestroy {
     }
   }
 
+  // TODO: add the tryRestorePlayerState to the server indexedDb
   private async tryRestorePlayerState(track: Track) {
     try {
       const savedState = localStorage.getItem(
@@ -225,6 +226,7 @@ export class TrackDetailComponent implements OnInit, OnDestroy {
     }
   }
 
+  // TODO: add the onPlay to the server indexedDb
   async onPlay(track: Track) {
     console.log('onPlay', track);
     if (!track) {
@@ -289,6 +291,7 @@ export class TrackDetailComponent implements OnInit, OnDestroy {
     }
   }*/
 
+  // TODO: add the onSeek to the server indexedDb
   onSeek(event: MouseEvent) {
     const progressBar = event.currentTarget as HTMLElement;
     const bounds = progressBar.getBoundingClientRect();
@@ -296,12 +299,14 @@ export class TrackDetailComponent implements OnInit, OnDestroy {
     this.audioService.seek(percent);
   }
 
+  // TODO: add the onVolumeChange to the server indexedDb
   onVolumeChange(value: number | null) {
     if (value !== null) {
       this.audioService.setVolume(value);
     }
   }
 
+  // TODO: add the getMute to the server indexedDb
   getMute(): void {
     this.volume$.pipe(take(1)).subscribe((volume) => {
       this.setVolume(volume > 0 ? 0 : 100);
@@ -310,6 +315,8 @@ export class TrackDetailComponent implements OnInit, OnDestroy {
   setVolume(value: number): void {
     this.audioService.setVolume(value / 100);
   }
+
+  // TODO: add the getStatusMessage to the server indexedDb
   getStatusMessage(status: string): string {
     switch (status) {
       case PlaybackStatus.BUFFERING:
@@ -323,14 +330,17 @@ export class TrackDetailComponent implements OnInit, OnDestroy {
     }
   }
 
+  // TODO: add the onNext to the server indexedDb
   onNext(track: Track): void {
     this.audioService.next(track);
   }
 
+  // TODO: add the onPrevious to the server indexedDb
   async onPrevious(track: Track): Promise<void> {
     this.audioService.previous(track);
   }
 
+  // TODO: add the getProgressBarValue to the server indexedDb
   getProgressBarValue(): number {
     let currentTime = 0;
     let duration = 1;
@@ -343,12 +353,14 @@ export class TrackDetailComponent implements OnInit, OnDestroy {
     return (currentTime / duration) * 100;
   }
 
+  // TODO: add the formatTime to the server indexedDb
   formatTime(seconds: number): string {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.floor(seconds % 60);
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   }
 
+  // TODO: add the mute to the server indexedDb
   onToggleMute() {
     this.volume$.pipe(take(1)).subscribe((volume) => {
       this.audioService.toggleMute(volume || 0);
