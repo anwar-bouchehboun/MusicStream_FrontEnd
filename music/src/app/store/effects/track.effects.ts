@@ -45,7 +45,7 @@ export class TrackEffects {
         this.trackService.deleteTrack(id).pipe(
           map(() => TrackActions.deleteTrackSuccess({ id })),
           catchError((error) =>
-            of(TrackActions.loadTracksFailure({ error: error.message }))
+            of(TrackActions.deleteTrackFailure({ error: error.message }))
           )
         )
       )

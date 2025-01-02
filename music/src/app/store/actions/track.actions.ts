@@ -43,6 +43,10 @@ export const deleteTrackSuccess = createAction(
   '[Track] Delete Track Success',
   props<{ id: string }>()
 );
+export const deleteTrackFailure = createAction(
+  '[Track] Delete Track Failure',
+  props<{ error: string }>()
+);
 
 // TODO: add the player actions to the server indexedDb
 // Player Actions
@@ -111,4 +115,5 @@ export const TrackActions = {
   deleteTrack,
   deleteTrackSuccess,
   updateTrackSuccess,
+  deleteTrackFailure,
 };
