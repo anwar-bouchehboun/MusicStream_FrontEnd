@@ -138,11 +138,11 @@
 
         <!-- Volume -->
         <div
-          class="flex items-center p-2 mt-6 w-1/2 bg-white rounded-lg shadow-sm"
+          class="flex items-center p-1 mt-6 w-1/4 bg-white rounded-lg shadow-sm"
         >
           <button
             (click)="onToggleMute()"
-            class="p-2 rounded-full transition-colors duration-200 hover:bg-gray-100 focus:outline-none"
+            class="p-3 rounded-full transition-colors duration-200 hover:bg-gray-100 focus:outline-none"
           >
             <mat-icon
               [class.text-gray-400]="(volume$ | async) === 0"
