@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -18,6 +18,8 @@ import Swal from 'sweetalert2';
 import { selectAllTracks } from '../../store/selectors/track.selectors';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { delay } from 'rxjs/operators';
+import { PlaybackStatus } from '../../models/playerstate.interface';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-library',
@@ -52,8 +54,9 @@ import { delay } from 'rxjs/operators';
     `,
   ],
 })
-export class LibraryComponent implements OnInit {
+export class LibraryComponent implements OnInit, OnDestroy {
   tracks$ = this.store.select(selectAllTracks);
+  private destroy$ = new Subject<void>();
   // tracks$ = this.trackService.getAllTracks();
   searchQuery = '';
   selectedCategory = 'all'; // Valeur par défaut
@@ -137,5 +140,13 @@ export class LibraryComponent implements OnInit {
   }
   ngOnDestroy() {
     this.store.dispatch(PlayerActions.setCurrentTrack({ track: null }));
+    this.store.dispatch(
+      PlayerActions.setStatus({ status: PlaybackStatus.STOPPED })
+    );
+        // Completing destroy$ to clean up subscriptions
+        this.destroy$.next();
+        this.destroy$.complete();
+
+        console.log('LibraryComponent destroyed');
   }
 }

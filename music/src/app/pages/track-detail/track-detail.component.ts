@@ -37,7 +37,6 @@ import { RouterModule } from '@angular/router';
     MatProgressBarModule,
     FormatDurationPipe,
     ReactiveFormsModule,
-    DecimalPipe,
     RouterModule,
   ],
   templateUrl: './track-detail.component.html',
