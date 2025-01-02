@@ -5,10 +5,11 @@ import { Pipe, PipeTransform } from '@angular/core';
   standalone: true,
 })
 export class FormatDurationPipe implements PipeTransform {
-  transform(seconds: number): string {
-    seconds = Math.round(seconds);
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  transform(value: number | null): string {
+    if (value === null) return '0:00';
+
+    const minutes = Math.floor(value / 60);
+    const seconds = Math.floor(value % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   }
 }

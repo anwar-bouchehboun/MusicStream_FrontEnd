@@ -65,7 +65,7 @@ export const setDuration = createAction(
 );
 export const setCurrentTrack = createAction(
   '[Player] Set Current Track',
-  props<{ track: Track }>()
+  props<{ track: Track | null }>()
 );
 export const previous = createAction(
   '[Player] Previous',

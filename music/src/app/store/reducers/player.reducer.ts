@@ -57,5 +57,5 @@ export const playerReducer = createReducer(
     ...state,
     currentTrack: track,
   }))
-  
 );
+

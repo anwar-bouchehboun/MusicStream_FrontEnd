@@ -19,6 +19,7 @@ import { TrackService } from '../../services/track.service';
 import { HttpClientModule } from '@angular/common/http';
 import { selectTrackById } from '../../store/selectors/track.selectors';
 import { uniqueTitleValidator } from '../../shared/validators/unique-title.validator';
+import { AppState } from '../../models/app.state';
 
 @Component({
   selector: 'app-track-form',
@@ -133,7 +134,7 @@ export class TrackFormComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private store: Store,
+    private store: Store<AppState>,
     private router: Router,
     private route: ActivatedRoute,
     private storageService: TrackService,
@@ -157,7 +158,7 @@ export class TrackFormComponent implements OnInit {
       title: [
         '',
         [Validators.required, Validators.maxLength(50)],
-     //   [uniqueTitleValidator(this.trackService)],
+        //   [uniqueTitleValidator(this.trackService)],
       ],
       artist: ['', [Validators.required]],
       description: ['', [Validators.required, Validators.maxLength(200)]],
@@ -210,13 +211,13 @@ export class TrackFormComponent implements OnInit {
           ...trackData,
           addedDate: new Date(),
           audioFile: this.audioFile,
-          fileUrl: this.audioFile
-            ? URL.createObjectURL(this.audioFile)
-            : '',
+          fileUrl: this.audioFile ? URL.createObjectURL(this.audioFile) : '',
         };
 
         this.trackService.updateTrack(updatedTrack).subscribe(() => {
-          this.store.dispatch(TrackActions.updateTrackSuccess({ track: updatedTrack }));
+          this.store.dispatch(
+            TrackActions.updateTrackSuccess({ track: updatedTrack })
+          );
           this.router.navigate(['/library']);
         });
       } else {

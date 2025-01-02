@@ -114,7 +114,16 @@ export class TrackService {
           const store = transaction.objectStore(this.storeName);
           const getRequest = store.get(id);
 
-          getRequest.onsuccess = () => resolve(getRequest.result);
+          getRequest.onsuccess = () => {
+            const track = getRequest.result;
+            if (track?.audioFile) {
+              // Ensure audioFile is a File/Blob object
+              track.audioFile = new Blob([track.audioFile], {
+                type: track.audioFile.type,
+              });
+            }
+            resolve(track);
+          };
         };
       })
     );
@@ -129,7 +138,6 @@ export class TrackService {
         if (currentIndex === -1 || currentIndex >= tracks.length - 1) {
           return null;
         }
-       
 
         return tracks[currentIndex + 1];
       })

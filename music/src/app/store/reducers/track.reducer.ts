@@ -38,6 +38,5 @@ export const trackReducer = createReducer(
   on(TrackActions.deleteTrackSuccess, (state, { id }) => ({
     ...state,
     tracks: state.tracks.filter((track) => track.id !== id),
-  })),
- 
+  }))
 );

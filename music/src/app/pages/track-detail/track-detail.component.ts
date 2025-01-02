@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { Track } from '../../models/track.interface';
+import { MusicCategory, Track } from '../../models/track.interface';
 import { AudioService } from '../../services/audio.service';
 import { selectTrackById } from '../../store/selectors/track.selectors';
 import { FormatDurationPipe } from '../../shared/pipes/format-duration.pipe';
@@ -15,6 +15,17 @@ import { AppState } from '../../models/app.state';
 import { PlaybackStatus } from '../../models/playerstate.interface';
 import { firstValueFrom } from 'rxjs';
 import { TrackService } from '../../services/track.service';
+import { take } from 'rxjs/operators';
+import { selectVolume } from '../../store/selectors/track.selectors';
+import { TrackActions } from '../../store/actions/track.actions';
+import { tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { FormControl } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
+import { DecimalPipe } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-track-detail',
@@ -25,11 +36,17 @@ import { TrackService } from '../../services/track.service';
     MatSliderModule,
     MatProgressBarModule,
     FormatDurationPipe,
+    ReactiveFormsModule,
+    DecimalPipe,
+    RouterModule,
   ],
   templateUrl: './track-detail.component.html',
+  styleUrls: ['./track-detail.component.css'],
 })
-export class TrackDetailComponent implements OnInit {
-  track$: Observable<Track | undefined>;
+export class TrackDetailComponent implements OnInit, OnDestroy {
+  track$: Observable<Track> = this.store
+    .select(selectTrackById(''))
+    .pipe(map((track) => track || this.defaultTrack));
   isPlaying$ = this.store.select(
     (state: AppState) => state.player.status === PlaybackStatus.PLAYING
   );
@@ -37,7 +54,7 @@ export class TrackDetailComponent implements OnInit {
     (state: AppState) => state.player.currentTime
   );
   duration$ = this.store.select((state: AppState) => state.player.duration);
-  volume$ = this.store.select((state: AppState) => state.player.volume);
+  volume$ = this.store.select(selectVolume);
   playerStatus$ = this.store.select((state: AppState) => state.player.status);
   bufferedTime$ = this.store.select(
     (state: AppState) => state.player.bufferedTime
@@ -68,60 +85,162 @@ export class TrackDetailComponent implements OnInit {
     return currentIndex > 0 || this.audioService.getCurrentTime() > 3;
   });
 
+  // private previousVolume = 0.7;
+
+  // Add this property to track if player should be shown
+  showPlayer = true;
+
+  // Add this property for empty state
+  defaultTrack: Track = {
+    id: '',
+    title: 'No track selected',
+    artist: 'Please select a track',
+    description: '',
+    fileUrl: '',
+    duration: 0,
+    category: 'other' as MusicCategory,
+    addedDate: new Date(),
+    coverUrl: 'assets/images/music.png',
+  };
+
+  private destroy$ = new Subject<void>();
+
+  volumeControl = new FormControl(0);
+
   constructor(
     private route: ActivatedRoute,
     private store: Store<AppState>,
     private audioService: AudioService,
     private trackService: TrackService
   ) {
-    const trackId = this.route.snapshot.paramMap.get('id');
-    this.track$ = this.store.select(selectTrackById(trackId || ''));
+    this.initializeTrack();
   }
 
   ngOnInit() {
-    // Initialiser le volume
+    // Initialize volume
     this.onVolumeChange(0.7);
+
+    // Set up volume control subscription
+    this.volume$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((vol) => this.volumeControl.setValue(vol ?? 0));
+  }
+
+  ngOnDestroy() {
+    // Clean up subscriptions
+    this.destroy$.next();
+    this.destroy$.complete();
+
+    // Clean up audio resources
+    this.audioService.cleanup();
+
+    // Clean up track state
+    this.store.dispatch(PlayerActions.setCurrentTrack({ track: null }));
+    this.store.dispatch(
+      PlayerActions.setStatus({ status: PlaybackStatus.STOPPED })
+    );
+  }
+
+  private initializeTrack() {
+    const trackId = this.route.snapshot.paramMap.get('id');
+    if (trackId) {
+      // Add takeUntil to all subscriptions
+      this.trackService
+        .getTrackById(trackId)
+        .pipe(
+          take(1),
+          takeUntil(this.destroy$),
+          tap(async (track) => {
+            if (track) {
+              // Store track in localStorage
+              localStorage.setItem(`track_${trackId}`, JSON.stringify(track));
+
+              // Update store
+              this.store.dispatch(TrackActions.addTrack({ track }));
+              this.store.dispatch(PlayerActions.setCurrentTrack({ track }));
+
+              // Try to restore player state
+              const playerState = localStorage.getItem(
+                this.audioService.PLAYER_STATE_KEY
+              );
+              if (playerState) {
+                const state = JSON.parse(playerState);
+                if (state.trackId === trackId) {
+                  await this.audioService.play(track);
+                  if (state.currentTime) {
+                    this.audioService.seek(state.currentTime / state.duration);
+                  }
+                  if (state.volume !== undefined) {
+                    this.audioService.setVolume(state.volume);
+                  }
+                }
+              }
+            }
+          })
+        )
+        .subscribe();
+
+      // Set up track$ observable
+      this.track$ = this.store.select(selectTrackById(trackId)).pipe(
+        takeUntil(this.destroy$),
+        map((track) => {
+          // Try to get from localStorage if not in store
+          if (!track) {
+            const cached = localStorage.getItem(`track_${trackId}`);
+            if (cached) {
+              const cachedTrack = JSON.parse(cached);
+              this.store.dispatch(
+                TrackActions.addTrack({ track: cachedTrack })
+              );
+              return cachedTrack;
+            }
+            return this.defaultTrack;
+          }
+          return track;
+        })
+      );
+    }
+  }
+
+  private async tryRestorePlayerState(track: Track) {
+    try {
+      const savedState = localStorage.getItem(
+        this.audioService.PLAYER_STATE_KEY
+      );
+      if (savedState) {
+        const state = JSON.parse(savedState);
+        if (state.track?.id === track.id) {
+          // Only restore if it's the same track
+          await this.audioService.restorePlayerState();
+        }
+      }
+    } catch (error) {
+      console.error('Error restoring player state:', error);
+    }
   }
 
   async onPlay(track: Track) {
+    console.log('onPlay', track);
     if (!track) {
-      console.error('Aucune piste sélectionnée');
+      console.error('No track selected');
       return;
     }
 
-    // Logs plus détaillés pour déboguer
-    /*  console.log('Track reçu dans onPlay:', {
-      id: track.id,
-      fileUrl: track.fileUrl,
-      audioFile: track.audioFile,
-      // Ajoutez d'autres propriétés que vous attendez
-      allProps: Object.keys(track),
-    });
-    */
-
     try {
-      let audioUrl = track.fileUrl;
+      const trackData = await firstValueFrom(
+        this.trackService.getTrackById(track.id)
+      );
 
-      if (!audioUrl) {
-        const trackData = await firstValueFrom(
-          this.trackService.getTrackById(track.id)
-        );
-        audioUrl = trackData?.fileUrl || '';
+      if (!trackData?.fileUrl) {
+        throw new Error('Audio file URL is missing');
       }
 
-      if (!audioUrl) {
-        throw new Error('URL du fichier audio manquante');
-      }
-
-    //  new URL(audioUrl); // Vérifier si l'URL est valide
-
-      this.audioService.play({ ...track, fileUrl: audioUrl });
+      await this.audioService.play({ ...track, fileUrl: trackData.fileUrl });
     } catch (e) {
-      console.error('Erreur lors de la lecture:', e);
+      console.error('Playback error:', e);
       this.store.dispatch(
         PlayerActions.setStatus({
-          status: PlaybackStatus.ERROR,
-          error: 'URL du fichier audio invalide ou manquante',
+          status: PlaybackStatus.LOADING,
         })
       );
     }
@@ -166,20 +285,25 @@ export class TrackDetailComponent implements OnInit {
 
   onSeek(event: MouseEvent) {
     const progressBar = event.currentTarget as HTMLElement;
-    const rect = progressBar.getBoundingClientRect();
-    const position = (event.clientX - rect.left) / rect.width;
-    const clampedPosition = Math.max(0, Math.min(1, position));
-    this.audioService.seek(clampedPosition);
+    const bounds = progressBar.getBoundingClientRect();
+    const percent = (event.clientX - bounds.left) / bounds.width;
+    this.audioService.seek(percent);
   }
 
-  onVolumeChange(volume: number | null) {
-    if (volume !== null) {
-      // Ajouter une validation supplémentaire
-      const clampedVolume = Math.max(0, Math.min(1, volume));
-      this.audioService.setVolume(clampedVolume);
+  onVolumeChange(value: number | null) {
+    if (value !== null) {
+      this.audioService.setVolume(value);
     }
   }
 
+  getMute(): void {
+    this.volume$.pipe(take(1)).subscribe((volume) => {
+      this.setVolume(volume > 0 ? 0 : 100);
+    });
+  }
+  setVolume(value: number): void {
+    this.audioService.setVolume(value / 100);
+  }
   getStatusMessage(status: string): string {
     switch (status) {
       case PlaybackStatus.BUFFERING:
@@ -199,5 +323,33 @@ export class TrackDetailComponent implements OnInit {
 
   async onPrevious(track: Track): Promise<void> {
     this.audioService.previous(track);
+  }
+
+  getProgressBarValue(): number {
+    let currentTime = 0;
+    let duration = 1;
+
+    this.currentTime$
+      .pipe(take(1))
+      .subscribe((time) => (currentTime = time || 0));
+    this.duration$.pipe(take(1)).subscribe((d) => (duration = d || 1));
+
+    return (currentTime / duration) * 100;
+  }
+
+  formatTime(seconds: number): string {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  }
+
+  onToggleMute() {
+    this.volume$.pipe(take(1)).subscribe((volume) => {
+      this.audioService.toggleMute(volume || 0);
+    });
+  }
+  onDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
