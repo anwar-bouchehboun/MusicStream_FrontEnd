@@ -5,6 +5,7 @@ import { map, mergeMap, catchError } from 'rxjs/operators';
 import { TrackService } from '../../services/track.service';
 import * as TrackActions from '../actions/track.actions';
 
+// TODO: add the track effects to the server indexedDb
 @Injectable()
 export class TrackEffects {
   loadTracks$ = createEffect(() =>
@@ -21,6 +22,7 @@ export class TrackEffects {
     )
   );
 
+  // TODO: add the addTrack$ to the server indexedDb
   addTrack$ = createEffect(() =>
     this.actions$.pipe(
       ofType(TrackActions.addTrack),
@@ -35,6 +37,7 @@ export class TrackEffects {
     )
   );
 
+  // TODO: add the deleteTrack$ to the server indexedDb
   deleteTrack$ = createEffect(() =>
     this.actions$.pipe(
       ofType(TrackActions.deleteTrack),
