@@ -127,18 +127,25 @@ export class TrackDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    // Clean up subscriptions
+    // Nettoyage des souscriptions
     this.destroy$.next();
     this.destroy$.complete();
 
-    // Clean up audio resources
+    // Nettoyage des ressources audio
     this.audioService.cleanup();
 
-    // Clean up track state
+    // Nettoyage de l'état du lecteur
     this.store.dispatch(PlayerActions.setCurrentTrack({ track: null }));
     this.store.dispatch(
       PlayerActions.setStatus({ status: PlaybackStatus.STOPPED })
     );
+
+    // Suppression des données en cache si nécessaire
+    const trackId = this.route.snapshot.paramMap.get('id');
+    if (trackId) {
+      localStorage.removeItem(`track_${trackId}`);
+      localStorage.removeItem(this.audioService.PLAYER_STATE_KEY);
+    }
   }
 
   private initializeTrack() {
@@ -347,9 +354,5 @@ export class TrackDetailComponent implements OnInit, OnDestroy {
     this.volume$.pipe(take(1)).subscribe((volume) => {
       this.audioService.toggleMute(volume || 0);
     });
-  }
-  onDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

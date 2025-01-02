@@ -43,6 +43,7 @@ export const deleteTrackSuccess = createAction(
   props<{ id: string }>()
 );
 
+
 // Player Actions
 export const play = createAction('[Player] Play', props<{ track: Track }>());
 export const pause = createAction('[Player] Pause');
