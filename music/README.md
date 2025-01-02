@@ -49,10 +49,6 @@ ng serve
   - Titre : 50 caractères
   - Description : 200 caractères
 
-## 📝 Documentation
-
-Pour plus d'informations sur l'utilisation de l'application, consultez notre [Wiki](lien-vers-wiki).
-
 ## 🤝 Contribution
 
 Les contributions sont les bienvenues ! Consultez notre guide de contribution pour plus de détails.
@@ -63,3 +59,7 @@ Les contributions sont les bienvenues ! Consultez notre guide de contribution po
 - Angular Team
 - NgRx Team
 - Tous les contributeurs
+  
+  ##FIGMA
+```bash
+   https://www.figma.com/design/jdGP5g1NqUh5AmVyIUAkW2/Untitled?node-id=0-1&p=f&t=sa8gKH7ffdtpN7oO-0 
