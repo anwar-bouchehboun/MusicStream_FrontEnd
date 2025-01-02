@@ -2,6 +2,7 @@ import { createAction, props } from '@ngrx/store';
 import { Track } from '../../models/track.interface';
 import { PlaybackStatus } from '../../models/playerstate.interface';
 
+// TODO: add the track actions to the server indexedDb
 // Track Actions
 export const loadTracks = createAction('[Track] Load Tracks');
 export const loadTracksSuccess = createAction(
@@ -42,8 +43,12 @@ export const deleteTrackSuccess = createAction(
   '[Track] Delete Track Success',
   props<{ id: string }>()
 );
+export const deleteTrackFailure = createAction(
+  '[Track] Delete Track Failure',
+  props<{ error: string }>()
+);
 
-
+// TODO: add the player actions to the server indexedDb
 // Player Actions
 export const play = createAction('[Player] Play', props<{ track: Track }>());
 export const pause = createAction('[Player] Pause');
@@ -82,6 +87,7 @@ export const setCurrentIndex = createAction(
   props<{ index: number }>()
 );
 
+// TODO: add the player actions to the server indexedDb
 export const PlayerActions = {
   play,
   pause,
@@ -97,6 +103,7 @@ export const PlayerActions = {
   setCurrentIndex,
 };
 
+// TODO: add the track actions to the server indexedDb
 export const TrackActions = {
   loadTracks,
   loadTracksSuccess,
@@ -108,4 +115,5 @@ export const TrackActions = {
   deleteTrack,
   deleteTrackSuccess,
   updateTrackSuccess,
+  deleteTrackFailure,
 };
